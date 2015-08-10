@@ -25,8 +25,8 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <boost/thread.hpp>
-#include <ros/ros.h>
-#include <cv_bridge/cv_bridge.h>
+//#include <ros/ros.h>
+//#include <cv_bridge/cv_bridge.h>
 
 namespace ORB_SLAM
 {
@@ -37,7 +37,7 @@ FramePublisher::FramePublisher()
     mIm = cv::Mat(480,640,CV_8UC3, cv::Scalar(0,0,0));
     mbUpdated = true;
 
-    mImagePub = mNH.advertise<sensor_msgs::Image>("ORB_SLAM/Frame",10,true);
+//    mImagePub = mNH.advertise<sensor_msgs::Image>("ORB_SLAM/Frame",10,true);
 
     //PublishFrame();
 }
@@ -95,7 +95,10 @@ void FramePublisher::DrawFrame(cv::Mat &im)
     } // destroy scoped mutex -> release
 
     if(im.channels()<3)
+    {
+        /// Need to convert this Gray image to RGB image
         cvtColor(im,im,CV_GRAY2BGR);
+    }
 
     //Draw
     if(state==Tracking::INITIALIZING) //INITIALIZING

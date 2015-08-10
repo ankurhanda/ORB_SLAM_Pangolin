@@ -19,8 +19,8 @@
 */
 
 #include "Tracking.h"
-#include<ros/ros.h>
-#include <cv_bridge/cv_bridge.h>
+//#include<ros/ros.h>
+//#include <cv_bridge/cv_bridge.h>
 
 #include<opencv2/opencv.hpp>
 
@@ -145,9 +145,9 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
         cout << endl << "Motion Model: Disabled (not recommended, change settings UseMotionModel: 1)" << endl << endl;
 
 
-    tf::Transform tfT;
-    tfT.setIdentity();
-    mTfBr.sendTransform(tf::StampedTransform(tfT,ros::Time::now(), "/ORB_SLAM/World", "/ORB_SLAM/Camera"));
+//    tf::Transform tfT;
+//    tfT.setIdentity();
+//    mTfBr.sendTransform(tf::StampedTransform(tfT,ros::Time::now(), "/ORB_SLAM/World", "/ORB_SLAM/Camera"));
 
     mvTimes.reserve(1e5);
 }
@@ -169,169 +169,170 @@ void Tracking::SetKeyFrameDatabase(KeyFrameDatabase *pKFDB)
 
 void Tracking::Run()
 {
-    ros::NodeHandle nodeHandler;
-    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &Tracking::GrabImage, this);
+//    ros::NodeHandle nodeHandler;
+//    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &Tracking::GrabImage, this);
 
-    ros::spin();
+//    ros::spin();
 }
 
-void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
+void Tracking::GrabImage()//const sensor_msgs::ImageConstPtr& msg)
 {
-    if(CheckResetFromGUI())
-        return;
+//    if(CheckResetFromGUI())
+//        return;
 
-    double t1 = ros::Time::now().toSec();
-    cv::Mat im;
+//    double t1 = ros::Time::now().toSec();
+//    cv::Mat im;
 
-    // Copy the ros image message to cv::Mat. Convert to grayscale if it is a color image.
-    cv_bridge::CvImageConstPtr cv_ptr;
-    try
-    {
-        cv_ptr = cv_bridge::toCvShare(msg);
-    }
-    catch (cv_bridge::Exception& e)
-    {
-        ROS_ERROR("cv_bridge exception: %s", e.what());
-        return;
-    }
+//    // Copy the ros image message to cv::Mat. Convert to grayscale if it is a color image.
+//    cv_bridge::CvImageConstPtr cv_ptr;
+//    try
+//    {
+//        cv_ptr = cv_bridge::toCvShare(msg);
+//    }
+//    catch (cv_bridge::Exception& e)
+//    {
+//        ROS_ERROR("cv_bridge exception: %s", e.what());
+//        return;
+//    }
 
-    ROS_ASSERT(cv_ptr->image.channels()==3 || cv_ptr->image.channels()==1);
+//    ROS_ASSERT(cv_ptr->image.channels()==3 || cv_ptr->image.channels()==1);
 
-    if(cv_ptr->image.channels()==3)
-    {
-        if(mbRGB)
-            cvtColor(cv_ptr->image, im, CV_RGB2GRAY);
-        else
-            cvtColor(cv_ptr->image, im, CV_BGR2GRAY);
-    }
-    else if(cv_ptr->image.channels()==1)
-    {
-        cv_ptr->image.copyTo(im);
-    }
+//    if(cv_ptr->image.channels()==3)
+//    {
+//        if(mbRGB)
+//            cvtColor(cv_ptr->image, im, CV_RGB2GRAY);
+//        else
+//            cvtColor(cv_ptr->image, im, CV_BGR2GRAY);
+//    }
+//    else if(cv_ptr->image.channels()==1)
+//    {
+//        cv_ptr->image.copyTo(im);
+//    }
 
-    if(mState==WORKING || mState==LOST)
-        mCurrentFrame = Frame(im,cv_ptr->header.stamp.toSec(),mpORBextractor,mpORBVocabulary,mK,mDistCoef);
-    else
-        mCurrentFrame = Frame(im,cv_ptr->header.stamp.toSec(),mpIniORBextractor,mpORBVocabulary,mK,mDistCoef);
+//    if(mState==WORKING || mState==LOST)
+//        mCurrentFrame = Frame(im,cv_ptr->header.stamp.toSec(),mpORBextractor,mpORBVocabulary,mK,mDistCoef);
+//    else
+//        mCurrentFrame = Frame(im,cv_ptr->header.stamp.toSec(),mpIniORBextractor,mpORBVocabulary,mK,mDistCoef);
 
-    // Depending on the state of the Tracker we perform different tasks
+//    // Depending on the state of the Tracker we perform different tasks
 
-    if(mState==NO_IMAGES_YET)
-    {
-        mState = NOT_INITIALIZED;
-    }
+//    if(mState==NO_IMAGES_YET)
+//    {
+//        mState = NOT_INITIALIZED;
+//    }
 
-    mLastProcessedState=mState;
+//    mLastProcessedState=mState;
 
-    if(mState==NOT_INITIALIZED)
-    {
-        FirstInitialization();
-    }
-    else if(mState==INITIALIZING)
-    {
-        Initialize();
-    }
-    else
-    {
-        // System is initialized. Track Frame.
-        bool bOK;
+//    if(mState==NOT_INITIALIZED)
+//    {
+//        FirstInitialization();
+//    }
+//    else if(mState==INITIALIZING)
+//    {
+//        Initialize();
+//    }
+//    else
+//    {
+//        // System is initialized. Track Frame.
+//        bool bOK;
 
-        // Initial Camera Pose Estimation from Previous Frame (Motion Model or Coarse) or Relocalisation
-        if(mState==WORKING && !RelocalisationRequested())
-        {
-            if(!mbMotionModel || mpMap->KeyFramesInMap()<4 || mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
-                bOK = TrackPreviousFrame();
-            else
-            {
-                bOK = TrackWithMotionModel();
-                if(!bOK)
-                    bOK = TrackPreviousFrame();
-            }
-        }
-        else
-        {
-            bOK = Relocalisation();
-        }
+//        // Initial Camera Pose Estimation from Previous Frame (Motion Model or Coarse) or Relocalisation
+//        if(mState==WORKING && !RelocalisationRequested())
+//        {
+//            if(!mbMotionModel || mpMap->KeyFramesInMap()<4 || mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
+//                bOK = TrackPreviousFrame();
+//            else
+//            {
+//                bOK = TrackWithMotionModel();
+//                if(!bOK)
+//                    bOK = TrackPreviousFrame();
+//            }
+//        }
+//        else
+//        {
+//            bOK = Relocalisation();
+//        }
 
-        // If we have an initial estimation of the camera pose and matching. Track the local map.
-        if(bOK)
-            bOK = TrackLocalMap();
+//        // If we have an initial estimation of the camera pose and matching. Track the local map.
+//        if(bOK)
+//            bOK = TrackLocalMap();
 
-        // If tracking were good, check if we insert a keyframe
-        if(bOK)
-        {
-            // This is for visualization
-            mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
-            mpMapPublisher->SetCurrentCameraPose(mCurrentFrame.mTcw);
+//        // If tracking were good, check if we insert a keyframe
+//        if(bOK)
+//        {
+//            // This is for visualization
+//            mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
+//            mpMapPublisher->SetCurrentCameraPose(mCurrentFrame.mTcw);
 
-            if(NeedNewKeyFrame())
-                CreateNewKeyFrame();
+//            if(NeedNewKeyFrame())
+//                CreateNewKeyFrame();
 
-            // We allow points with high innovation (considererd outliers by the Huber Function)
-            // pass to the new keyframe, so that bundle adjustment will finally decide
-            // if they are outliers or not. We don't want next frame to estimate its position
-            // with those points so we discard them in the frame.
-            for(size_t i=0; i<mCurrentFrame.mvbOutlier.size();i++)
-            {
-                if(mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
-                    mCurrentFrame.mvpMapPoints[i]=NULL;
-            }
-        }
+//            // We allow points with high innovation (considererd outliers by the Huber Function)
+//            // pass to the new keyframe, so that bundle adjustment will finally decide
+//            // if they are outliers or not. We don't want next frame to estimate its position
+//            // with those points so we discard them in the frame.
+//            for(size_t i=0; i<mCurrentFrame.mvbOutlier.size();i++)
+//            {
+//                if(mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
+//                    mCurrentFrame.mvpMapPoints[i]=NULL;
+//            }
+//        }
 
-        if(bOK)
-            mState = WORKING;
-        else
-            mState=LOST;
+//        if(bOK)
+//            mState = WORKING;
+//        else
+//            mState=LOST;
 
-        // Reset if the camera get lost soon after initialization
-        if(mState==LOST)
-        {
-            if(mpMap->KeyFramesInMap()<=5)
-            {
-                Reset();
-                return;
-            }
-        }
+//        // Reset if the camera get lost soon after initialization
+//        if(mState==LOST)
+//        {
+//            if(mpMap->KeyFramesInMap()<=5)
+//            {
+//                Reset();
+//                return;
+//            }
+//        }
 
-        // Update motion model
-        if(mbMotionModel)
-        {
-            if(bOK && !mLastFrame.mTcw.empty())
-            {
-                cv::Mat LastRwc = mLastFrame.mTcw.rowRange(0,3).colRange(0,3).t();
-                cv::Mat Lasttwc = -LastRwc*mLastFrame.mTcw.rowRange(0,3).col(3);
-                cv::Mat LastTwc = cv::Mat::eye(4,4,CV_32F);
-                LastRwc.copyTo(LastTwc.rowRange(0,3).colRange(0,3));
-                Lasttwc.copyTo(LastTwc.rowRange(0,3).col(3));
-                mVelocity = mCurrentFrame.mTcw*LastTwc;
-            }
-            else
-                mVelocity = cv::Mat();
-        }
+//        // Update motion model
+//        if(mbMotionModel)
+//        {
+//            if(bOK && !mLastFrame.mTcw.empty())
+//            {
+//                cv::Mat LastRwc = mLastFrame.mTcw.rowRange(0,3).colRange(0,3).t();
+//                cv::Mat Lasttwc = -LastRwc*mLastFrame.mTcw.rowRange(0,3).col(3);
+//                cv::Mat LastTwc = cv::Mat::eye(4,4,CV_32F);
+//                LastRwc.copyTo(LastTwc.rowRange(0,3).colRange(0,3));
+//                Lasttwc.copyTo(LastTwc.rowRange(0,3).col(3));
+//                mVelocity = mCurrentFrame.mTcw*LastTwc;
+//            }
+//            else
+//                mVelocity = cv::Mat();
+//        }
 
-        mLastFrame = Frame(mCurrentFrame);
-     }       
+//        mLastFrame = Frame(mCurrentFrame);
+//     }
 
-    // Update drawer
-    mpFramePublisher->Update(this);
+//    // Update drawer
+//    mpFramePublisher->Update(this);
 
-    if(!mCurrentFrame.mTcw.empty())
-    {
-        cv::Mat Rwc = mCurrentFrame.mTcw.rowRange(0,3).colRange(0,3).t();
-        cv::Mat twc = -Rwc*mCurrentFrame.mTcw.rowRange(0,3).col(3);
-        tf::Matrix3x3 M(Rwc.at<float>(0,0),Rwc.at<float>(0,1),Rwc.at<float>(0,2),
-                        Rwc.at<float>(1,0),Rwc.at<float>(1,1),Rwc.at<float>(1,2),
-                        Rwc.at<float>(2,0),Rwc.at<float>(2,1),Rwc.at<float>(2,2));
-        tf::Vector3 V(twc.at<float>(0), twc.at<float>(1), twc.at<float>(2));
+//    if(!mCurrentFrame.mTcw.empty())
+//    {
+//        cv::Mat Rwc = mCurrentFrame.mTcw.rowRange(0,3).colRange(0,3).t();
+//        cv::Mat twc = -Rwc*mCurrentFrame.mTcw.rowRange(0,3).col(3);
+//        tf::Matrix3x3 M(Rwc.at<float>(0,0),Rwc.at<float>(0,1),Rwc.at<float>(0,2),
+//                        Rwc.at<float>(1,0),Rwc.at<float>(1,1),Rwc.at<float>(1,2),
+//                        Rwc.at<float>(2,0),Rwc.at<float>(2,1),Rwc.at<float>(2,2));
+//        tf::Vector3 V(twc.at<float>(0), twc.at<float>(1), twc.at<float>(2));
 
-        tf::Transform tfTcw(M,V);
 
-        mTfBr.sendTransform(tf::StampedTransform(tfTcw,ros::Time::now(), "ORB_SLAM/World", "ORB_SLAM/Camera"));
-    }
+//        //// Need to check if to keep this as it is....
+////        tf::Transform tfTcw(M,V);
+////        mTfBr.sendTransform(tf::StampedTransform(tfTcw,ros::Time::now(), "ORB_SLAM/World", "ORB_SLAM/Camera"));
+//    }
 
-    double t2 = ros::Time::now().toSec();
+//    double t2 = ros::Time::now().toSec();
 
-    mvTimes.push_back(t2-t1);
+//    mvTimes.push_back(t2-t1);
 
 }
 
@@ -450,7 +451,7 @@ void Tracking::CreateInitialMap(cv::Mat &Rcw, cv::Mat &tcw)
     pKFcur->UpdateConnections();
 
     // Bundle Adjustment
-    ROS_INFO("New Map created with %d points",mpMap->MapPointsInMap());
+    printf("New Map created with %d points",mpMap->MapPointsInMap());
 
     Optimizer::GlobalBundleAdjustemnt(mpMap,20);
 
@@ -460,7 +461,7 @@ void Tracking::CreateInitialMap(cv::Mat &Rcw, cv::Mat &tcw)
 
     if(medianDepth<0 || pKFcur->TrackedMapPoints()<100)
     {
-        ROS_INFO("Wrong initialization, reseting...");
+        printf("Wrong initialization, reseting...");
         Reset();
         return;
     }

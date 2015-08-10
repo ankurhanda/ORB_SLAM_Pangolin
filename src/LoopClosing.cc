@@ -28,7 +28,7 @@
 
 #include "ORBmatcher.h"
 
-#include <ros/ros.h>
+//#include <ros/ros.h>
 
 #include "Thirdparty/g2o/g2o/types/sim3/types_seven_dof_expmap.h"
 
@@ -546,7 +546,7 @@ void LoopClosing::CorrectLoop()
     mpMatchedKF->AddLoopEdge(mpCurrentKF);
     mpCurrentKF->AddLoopEdge(mpMatchedKF);
 
-    ROS_INFO("Loop Closed!");
+    printf("Loop Closed!");
 
     // Loop closed. Release Local Mapping.
     mpLocalMapper->Release();

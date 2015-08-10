@@ -19,13 +19,23 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Cholmod REQUIRED)
+FIND_PACKAGE(Pangolin REQUIRED)
+FIND_PACKAGE(GLEW REQUIRED)
+
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${EIGEN3_INCLUDE_DIR}
 ${CHOLMOD_INCLUDE_DIR}
 ${PROJECT_SOURCE_DIR}/include
+  ${Pangolin_INCLUDE_DIR}
 )
+
+LINK_DIRECTORIES(
+  /usr/local/lib
+  /usr/local/lib64
+)
+
 
 add_executable(${PROJECT_NAME}
 src/main.cc
@@ -74,6 +84,13 @@ link_libraries(
   -lboost_system
   -lboost_filesystem
   -lboost_thread
+  ${Pangolin_LIBRARY}
+#/usr/lib/x86_64-linux-gnu/libGLEW.so
+  -lGLEW
+  -lglut
+  -lGLU
+#  -lGL
+#/usr/lib/x86_64-linux-gnu/libGL.so
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -23,7 +23,7 @@
 #include <vector>
 #include <cmath>
 #include <opencv/cv.h>
-#include <ros/ros.h>
+//#include <ros/ros.h>
 
 #include "KeyFrame.h"
 #include "ORBmatcher.h"

@@ -23,8 +23,8 @@
 
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
-#include<sensor_msgs/Image.h>
-#include<sensor_msgs/image_encodings.h>
+//#include<sensor_msgs/Image.h>
+//#include<sensor_msgs/image_encodings.h>
 
 #include"FramePublisher.h"
 #include"Map.h"
@@ -37,7 +37,7 @@
 #include "Initializer.h"
 #include "MapPublisher.h"
 
-#include<tf/transform_broadcaster.h>
+//#include<tf/transform_broadcaster.h>
 
 
 namespace ORB_SLAM
@@ -93,7 +93,7 @@ public:
 
 
 protected:
-    void GrabImage(const sensor_msgs::ImageConstPtr& msg);
+    void GrabImage();//const sensor_msgs::ImageConstPtr& msg);
 
     void FirstInitialization();
     void Initialize();
@@ -186,7 +186,7 @@ protected:
     bool mbRGB;
 
     // Transfor broadcaster (for visualization in rviz)
-    tf::TransformBroadcaster mTfBr;
+//    tf::TransformBroadcaster mTfBr;
 };
 
 } //namespace ORB_SLAM

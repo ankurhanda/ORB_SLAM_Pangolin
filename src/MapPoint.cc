@@ -20,7 +20,7 @@
 
 #include "MapPoint.h"
 #include "ORBmatcher.h"
-#include "ros/ros.h"
+//#include "ros/ros.h"
 
 namespace ORB_SLAM
 {
